@@ -1,0 +1,4 @@
+TeamsDB
+.venv/
+database/
+src/__pycache__/
