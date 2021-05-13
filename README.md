@@ -38,7 +38,7 @@ python3 main.py
 
 ## Construido con 🛠️
 
-* [SQLite3] (https://www.sqlite.org/index.html) - SQL database engine
+* [SQLite3](https://www.sqlite.org/index.html) - SQL database engine
 * [PySimpleGui](https://pysimplegui.readthedocs.io/en/latest/) - Python GUI For Humans.
 
 
