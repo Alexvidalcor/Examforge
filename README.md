@@ -1,6 +1,6 @@
-# GCode CostEstimator
+# ExamMaker
 
-_Programa que permite generar un examen a partir de una BBDD proporcionada_
+_Programa que permite generar un examen a partir de una BBDD proporcionada._
 
 
 ## Estado del proyecto ⚙️
