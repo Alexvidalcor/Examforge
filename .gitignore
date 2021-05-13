@@ -2,3 +2,4 @@ TeamsDB
 .venv/
 database/
 src/__pycache__/
+test.py
