@@ -18,7 +18,7 @@ Soporte de imágenes | En desarrollo
 
 _Descargar y ejecutar_
 
-Ver  apartado **Releases** para descargar el último ejecutable.
+Ver  apartado [**Releases**](https://github.com/Alexvidalcor/ExamMaker/releases) para descargar el último ejecutable.
 
 
 ### Distribución de Linux basado en Debian 
