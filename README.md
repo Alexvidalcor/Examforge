@@ -1,6 +1,6 @@
-# GCode CostEstimator
+# ExamMaker
 
-_Programa que permite generar un examen a partir de una BBDD proporcionada_
+_Programa que permite generar un examen a partir de una BBDD proporcionada._
 
 
 Ventana Preguntas        |  Ventana Respuestas
@@ -27,7 +27,7 @@ Soporte de imágenes | En desarrollo
 
 _Descargar y ejecutar_
 
-Ver  apartado **Releases** para descargar el último ejecutable.
+Ver  apartado [**Releases**](https://github.com/Alexvidalcor/ExamMaker/releases) para descargar el último ejecutable.
 
 
 ### Distribución de Linux basado en Debian 
@@ -47,7 +47,7 @@ python3 main.py
 
 ## Construido con 🛠️
 
-* [SQLite3] (https://www.sqlite.org/index.html) - SQL database engine
+* [SQLite3](https://www.sqlite.org/index.html) - SQL database engine
 * [PySimpleGui](https://pysimplegui.readthedocs.io/en/latest/) - Python GUI For Humans.
 
 
