@@ -59,7 +59,7 @@ def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
 
 def TestGui(cur, numberQuest, questChoice, windowInitial):
 
-    randomQuestions = random.sample(range(numberQuest), questChoice)
+    randomQuestions = random.sample(range(1,numberQuest+1), questChoice)
     n = 0
     correct = 0
     layout = [[sg.Text(GetThings(cur, randomQuestions[n]), size=(80,30), key="-QUESTION-")],
