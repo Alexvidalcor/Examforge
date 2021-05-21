@@ -1,4 +1,5 @@
 import PySimpleGUI as sg
+from PySimpleGUI.PySimpleGUI import ToolTip
 
 from src.db import SqlConnection
 from src.question import *
@@ -133,7 +134,7 @@ def InitialGui():
 
             [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
 
-            sg.Listbox(size=(10,1), enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST-")],
+            sg.Listbox(size=(10,1), enable_events=True, tooltip="Desactivado. Selecciona DB antes", default_values=[0],values=[0], disabled=True,  key="-LIST-")],
 
             [sg.Text("", size=ParamsEmpty[0])]
     ]
@@ -185,6 +186,8 @@ def InitialGui():
 
                 window.Element('-INF-').Update(f"Número de preguntas introducidas: {numberQuest}", text_color="#ffff80")
                 window.Element('-LIST-').Update(values=list(range(1,numberQuest+1)), disabled=False)
+                window.Element("-LIST-").set_tooltip("Haz click encima para seleccionar")
+                
         
         elif event =="-LIST-":
             questChoice = values["-LIST-"][0]
@@ -194,7 +197,7 @@ def InitialGui():
         elif event == "Acerca de...":
             PopupHelp()
 
-        if event is None or event == 'Exit':
+        if event is None or event == 'Exit' or event == "Salir":
             break
         
     window.close()        
