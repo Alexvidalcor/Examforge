@@ -3,6 +3,12 @@ import PySimpleGUI as sg
 from src.db import SqlConnection
 from src.question import *
 
+app_title = 'ExamMaker-V0.3'
+sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth=0, border_width=1)
+
+menu_def = [['Archivo', ['Abrir', 'Salir']],['Ayuda', 'Acerca de...']]
+
+
 def AnswerGui(cur, realAnswer, userAnswer):
 
     layout = [
@@ -103,23 +109,71 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
 
 def InitialGui():
 
-    commonParams = [(30, 1), (10, 1), ("Helvetica", 12), (20, 1), (38, 1)]
+    ParamsH1 = [(45, 1), ("Helvetica", 18)]
+    ParamsH2 = [(45, 1), ("Helvetica", 15)]
+    ParamsH3 = [(20, 1), ("Helvetica", 12)]
+    ParamsEmpty=[(1,1),("any 1")]
+ 
 
-    layout = [[sg.Text('Introduce los siguientes datos para iniciar el examen:', size=(50, 2), font=commonParams[2])],
-    [sg.Text("Selecciona la DB: "), sg.Input(key="-FILE-", change_submits=True), sg.FileBrowse(button_text = "Seleccionar", key="-FILEBROWSER-"), sg.Button("Aceptar", key = "-SUB-")],
-    [sg.Text('No se ha introducido DB', size=commonParams[0], font=commonParams[2], key="-INF-")],
-    [sg.Text("Selecciona el número de preguntas:"), sg.Listbox(size=commonParams[1], enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST-")],
-    [sg.Button('OK', key="-OK-", disabled=True)]]
+    OfflineLayout = [
+            [sg.Menu(menu_def, tearoff=True)],
+            [sg.Text("", size=ParamsEmpty[0])],
 
-    window = sg.Window('Teams Exam - Answer', layout)
+            [sg.Frame('Insertar Base de datos', layout=[
+            [sg.Text("", font=ParamsEmpty[1])],
+            [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
+            sg.Input(key="-FILE-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
+                sg.FileBrowse(button_text = "Seleccionar", key="-SUB-", change_submits=True, enable_events=True)],
+            [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF-")],
+            ])],
+
+            [sg.Text("", font=ParamsEmpty[1])],
+
+            [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
+
+            sg.Listbox(size=(10,1), enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST-")],
+
+            [sg.Text("", size=ParamsEmpty[0])]
+    
+    ]
+
+
+    OnlineLayout = [
+             [sg.Menu(menu_def, tearoff=True)],
+            [sg.Text("", size=ParamsEmpty[0])],
+
+            [sg.Frame('Insertar Base de datos', layout=[
+            [sg.Text("", font=ParamsEmpty[1])],
+            [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
+            sg.Input(key="-FILE2-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
+                sg.FileBrowse(button_text = "Seleccionar", key="-SUB2-", change_submits=True, enable_events=True)],
+            [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF2-")],
+            ])],
+
+            [sg.Text("", font=ParamsEmpty[1])],
+
+            [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
+
+            sg.Listbox(size=(10,1), enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST2-")],
+
+            [sg.Text("", size=ParamsEmpty[0])]
+    
+    ]
+
+    layout = [[sg.TabGroup(
+        [[sg.Tab('BBDD Offline', OfflineLayout), sg.Tab('BBDD Online', OnlineLayout)]],key='-TABS-')],
+        [sg.Button('OK', size=ParamsH3[0], font=ParamsH3[1], key="-OK-", disabled=True)]
+    ]
+
+    window = sg.Window('ExamMaker - Pantalla inicial', layout)
     while True:
         event, values = window.read()
         if event == "-OK-":
             window.Hide()
             TestGui(cur, numberQuest, questChoice, window)
 
-        elif event == "-SUB-":
-            cur = SqlConnection(values["-FILEBROWSER-"])
+        elif event == "-FILE-":
+            cur = SqlConnection(values["-SUB-"])
 
             if cur == False:
                 sg.Popup("Base de datos no válida")
@@ -128,7 +182,7 @@ def InitialGui():
                 cur.execute("SELECT COUNT(*) FROM MainExam")
                 numberQuest = cur.fetchall()[0][0]
 
-                window.Element('-INF-').Update(f"Número de preguntas introducidas: {numberQuest}")
+                window.Element('-INF-').Update(f"Número de preguntas introducidas: {numberQuest}", text_color="#ffff80")
                 window.Element('-LIST-').Update(values=list(range(1,numberQuest+1)), disabled=False)
         
         elif event =="-LIST-":
@@ -139,17 +193,5 @@ def InitialGui():
             break
         
     window.close()        
-
-
-
-
-
-
-
-
-
-
-
-
 
 
