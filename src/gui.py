@@ -2,11 +2,13 @@ import PySimpleGUI as sg
 
 from src.db import SqlConnection
 from src.question import *
+from src.popups import *
 
 app_title = 'ExamMaker-V0.3'
 sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth=0, border_width=1)
 
-menu_def = [['Archivo', ['Abrir', 'Salir']],['Ayuda', 'Acerca de...']]
+menu_def = [['Archivo', ['Salir']],['Ayuda', 'Acerca de...']]
+
 
 
 def AnswerGui(cur, realAnswer, userAnswer):
@@ -123,7 +125,7 @@ def InitialGui():
             [sg.Text("", font=ParamsEmpty[1])],
             [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
             sg.Input(key="-FILE-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
-                sg.FileBrowse(button_text = "Seleccionar", key="-SUB-", change_submits=True, enable_events=True)],
+                sg.FileBrowse(button_text = "Seleccionar", key="-SUB-", change_submits=True, enable_events=True, tooltip="Selecciona la base de datos")],
             [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF-")],
             ])],
 
@@ -134,7 +136,6 @@ def InitialGui():
             sg.Listbox(size=(10,1), enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST-")],
 
             [sg.Text("", size=ParamsEmpty[0])]
-    
     ]
 
 
@@ -162,7 +163,7 @@ def InitialGui():
 
     layout = [[sg.TabGroup(
         [[sg.Tab('BBDD Offline', OfflineLayout), sg.Tab('BBDD Online', OnlineLayout)]],key='-TABS-')],
-        [sg.Button('OK', size=ParamsH3[0], font=ParamsH3[1], key="-OK-", disabled=True)]
+        [sg.Button('OK', size=ParamsH3[0], font=ParamsH3[1], key="-OK-", disabled=True, tooltip="Desactivado. Se necesita insertar número de preguntas y database válida")]
     ]
 
     window = sg.Window('ExamMaker - Pantalla inicial', layout)
@@ -188,6 +189,10 @@ def InitialGui():
         elif event =="-LIST-":
             questChoice = values["-LIST-"][0]
             window.Element("-OK-").Update(disabled=False)
+            window.Element("-OK-").set_tooltip("¡Ánimo y suerte!")
+        
+        elif event == "Acerca de...":
+            PopupHelp()
 
         if event is None or event == 'Exit':
             break
