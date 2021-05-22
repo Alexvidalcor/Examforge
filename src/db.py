@@ -7,7 +7,7 @@ def SqlConnection(routeDB):
     try:
         con = sqlite3.connect(routeDB)
         cur = con.cursor()
-        cur.execute("SELECT * from MainExam WHERE ID=1")
+        cur.execute("SELECT * from MainTest WHERE ID=1")
         print("Conexión establecida")
         return cur
 

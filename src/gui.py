@@ -1,8 +1,9 @@
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import ToolTip
 import requests
-from zipfile import ZipFile
+from zipfile import ZipFile, BadZipFile
 from io import BytesIO
+import os
 
 from src.db import SqlConnection
 from src.question import *
@@ -23,16 +24,18 @@ def AnswerGui(cur, realAnswer, userAnswer):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('Teams Exam - Answer', layout)
+    window = sg.Window('ExamMaker - Answer', layout)
     while True:
         event, values = window.read()
 
         if event == "OK":
             break
 
-        elif event is None or event == 'Exit':
+        if event is None or event == 'Exit' or event == "Salir":
             break
-
+            
+    if os.path.exists("testDB.db"):
+          os.remove("testDB.db")
     window.close()
 
 
@@ -51,16 +54,18 @@ def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('Teams Exam - Answer', layout)
+    window = sg.Window('ExamMaker - Answer', layout)
     while True:
         event, values = window.read()
 
         if event == "OK":
             break
 
-        elif event is None or event == 'Exit':
+        if event is None or event == 'Exit' or event == "Salir":
             break
 
+    if os.path.exists("testDB.db"):
+          os.remove("testDB.db")
     windowInitial.close()
     windowTest.close()
     window.close()
@@ -87,7 +92,7 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
     while True:
         event, values = window.read()
 
-        if event is None or event == 'Exit':
+        if event is None or event == 'Exit' or event == "Salir":
             break
 
         elif event in 'ABCDEF':
@@ -108,6 +113,8 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
                 ConclusionGui(window, windowInitial,len(randomQuestions), correct)
                 break
 
+    if os.path.exists("testDB.db"):
+          os.remove("testDB.db")
     windowInitial.close()
     window.close()
 
@@ -186,33 +193,42 @@ def InitialGui():
             TestGui(cur, numberQuest, questChoice, window)
 
         elif event == f"-FILE{checkTab}-":
-            if event == "-FILE2-":
-                dbSelected = requests.get("https://raw.githubusercontent.com/Alexvidalcor/ExamMaker/master/databases/testdb2.zip")
-        
-                password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
+            try:
+                if event == "-FILE2-":
+                    dbSelected = requests.get(f"https://raw.githubusercontent.com/Alexvidalcor/ExamMaker/master/databases/{values['-FILE2-']}")
+                    password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
                                              keep_on_top=True,
-                                             password_char="*")
-                if password == None:
-                    window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
-                    continue
+                                             password_char="*",
+                                             grab_anywhere=False)
+                    if password == None:
+                        window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
+                        continue
+                    with ZipFile(BytesIO(dbSelected.content)) as zf:
+                        zf.extractall(pwd=bytes(password,'utf-8'))
+                        cur = SqlConnection("testDB.db")
+                        
+                else:
+                    password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
+                                             keep_on_top=True,
+                                             password_char="*",
+                                             grab_anywhere=False)
+                    if password == None:
+                        window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
+                        continue
+                    with ZipFile(values[f"-SUB{checkTab}-"]) as zf:
+                        zf.extractall(pwd=bytes(password,'utf-8'))
+                        cur = SqlConnection("testDB.db")
+            except BadZipFile:
+                window.Element(f"-INF{checkTab}-").Update("ZIP no válido")
+                continue
                 
                 
-                with ZipFile(BytesIO(dbSelected.content)).open() as zf:
-                    asd = zf.read("testDB.db",pwd=bytes(password,'utf-8'))
-                    
-                print(asd)
-                      
-                cur = SqlConnection(asd)
-                    
-            else:
-                cur = SqlConnection(values[f"-SUB{checkTab}-"])
-
+    
             if cur == False:
                 window.Element(f"-INF{checkTab}-").Update("DB no válida")
 
             else:
-                
-                cur.execute("SELECT COUNT(*) FROM MainExam")
+                cur.execute("SELECT COUNT(*) FROM MainTest")
                 numberQuest = cur.fetchall()[0][0]
                     
                 window.Element(f'-INF{checkTab}-').Update(f"Número de preguntas introducidas: {numberQuest}", text_color="#ffff80")
@@ -223,7 +239,6 @@ def InitialGui():
         elif event == f"-SUB2-":
             dbRequest = requests.get("https://api.github.com/repos/Alexvidalcor/ExamMaker/contents/databases?ref=master")
             namesDB = [element["name"] for element in dbRequest.json()]
-            print(namesDB)
             window.Element(f"-FILE{checkTab}-").Update(values=namesDB, size=(20,1))
             
         elif event ==f"-LIST{checkTab}-":
@@ -236,7 +251,9 @@ def InitialGui():
 
         if event is None or event == 'Exit' or event == "Salir":
             break
-        
+    
+    if os.path.exists("testDB.db"):
+          os.remove("testDB.db")
     window.close()        
 
 
