@@ -24,7 +24,7 @@ def AnswerGui(cur, realAnswer, userAnswer):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout)
+    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.png')
     while True:
         event, values = window.read()
 
@@ -54,7 +54,7 @@ def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout)
+    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.png')
     while True:
         event, values = window.read()
 
@@ -71,9 +71,6 @@ def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
     window.close()
 
 
-
-
-
 def TestGui(cur, numberQuest, questChoice, windowInitial):
 
     randomQuestions = random.sample(range(1,numberQuest+1), questChoice)
@@ -87,7 +84,7 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
         [sg.Button('Enter')]
     ]
 
-    window = sg.Window('Teams Exam', layout)
+    window = sg.Window('Teams Exam', layout,icon=r'input/LogoIcon.png')
 
     while True:
         event, values = window.read()
@@ -117,7 +114,6 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
           os.remove("testDB.db")
     windowInitial.close()
     window.close()
-
 
 
 def InitialGui():
@@ -178,7 +174,7 @@ def InitialGui():
     ]
     
     checkTab= 2
-    window = sg.Window('ExamMaker - Pantalla inicial', layout)
+    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon=r'input/LogoIcon.png')
     while True:
         event, values = window.read()
         
@@ -248,6 +244,8 @@ def InitialGui():
         
         elif event == "Acerca de...":
             PopupHelp()
+        elif event == "Agradecimientos":
+            PopupThanks()
 
         if event is None or event == 'Exit' or event == "Salir":
             break

@@ -22,7 +22,7 @@ def PopupHelp():
 
     layout = [[sg.Column(layout, element_justification='center')]]
     
-    window = sg.Window('Detalles', layout)
+    window = sg.Window('Detalles', layout,icon=r'input/LogoIcon.png')
 
     while True:           
         event, values = window.read()
@@ -43,3 +43,31 @@ def PopupHelp():
             break
         
     window.close()
+    
+    
+
+def PopupThanks():
+    commonParams = ["#ffff80", ("Helvetica", 15)]
+    easterEgg=0
+    
+    layout = [
+                [sg.Text('Agradecimientos', text_color=commonParams[0], font=commonParams[1])],
+                
+                [sg.Text('Gracias a los alumnos de Azure Madrid', text_color="#ffafad",font=commonParams[1])],
+                
+                [sg.Text('Gracias a Francisco Luque', text_color="#ffafad",font=commonParams[1])],
+            ]
+
+
+    layout = [[sg.Column(layout, element_justification='center')]]
+    
+    window = sg.Window(':)', layout, icon=r'input/LogoIcon.png')
+
+    while True:           
+        event, values = window.read()
+ 
+        if event == sg.WIN_CLOSED or event == 'Exit':
+            break
+        
+    window.close()
+    
