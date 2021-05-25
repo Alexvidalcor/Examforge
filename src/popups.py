@@ -1,6 +1,40 @@
 import PySimpleGUI as sg
 
 import webbrowser
+from PIL import Image
+
+
+def PopupImage(imageChoice):
+
+    layout = [
+        [sg.Image(data=imageChoice,key="-IMAGE-")],
+    ]
+    window = sg.Window("ExamMaker - Visualizador", layout,icon=r'input/LogoIcon.png')
+    while True:
+        event, values = window.read()
+        if event == "Exit" or event == sg.WIN_CLOSED:
+            break
+    window.close()
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def PopupHelp():
     commonParams = ["#ffff80", ("Helvetica", 15)]
@@ -52,9 +86,7 @@ def PopupThanks():
     
     layout = [
                 [sg.Text('Agradecimientos', text_color=commonParams[0], font=commonParams[1])],
-                
                 [sg.Text('Gracias a los alumnos de Azure Madrid', text_color="#ffafad",font=commonParams[1])],
-                
                 [sg.Text('Gracias a Francisco Luque', text_color="#ffafad",font=commonParams[1])],
             ]
 

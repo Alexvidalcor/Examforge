@@ -1,5 +1,8 @@
-TeamsDB
 .venv/
-database/
+databases/
 src/__pycache__/
 test.py
+test.ipynb
+settings.json
+TestDB.db
+testitodb.zip

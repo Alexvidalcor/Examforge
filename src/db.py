@@ -15,6 +15,13 @@ def SqlConnection(routeDB):
         print("Conexión NO establecida")
         return False
      
+def GetThings(cur, idQuestion, option="Question"):
+
+        cur.execute(f"SELECT ID,{option} FROM MainTest WHERE ID ={idQuestion}")
+        thingExtract = cur.fetchall()[0][1]
+        return thingExtract
+
+
 
 
 
