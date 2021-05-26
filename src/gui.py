@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import ToolTip
 import requests
 from zipfile import ZipFile
+from io import BytesIO
 
 from src.db import SqlConnection
 from src.question import *
@@ -186,7 +187,8 @@ def InitialGui():
 
         elif event == f"-FILE{checkTab}-":
             if event == "-FILE2-":
-                dbSelected = requests.get("https://raw.githubusercontent.com/Alexvidalcor/ExamMaker/master/databases/testdb.zip")
+                dbSelected = requests.get("https://raw.githubusercontent.com/Alexvidalcor/ExamMaker/master/databases/testdb2.zip")
+        
                 password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
                                              keep_on_top=True,
                                              password_char="*")
@@ -194,10 +196,13 @@ def InitialGui():
                     window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
                     continue
                 
-                with ZipFile(dbSelected) as zf:
-                      zf.extractall(pwd=bytes(password,'utf-8'))
+                
+                with ZipFile(BytesIO(dbSelected.content)).open() as zf:
+                    asd = zf.read("testDB.db",pwd=bytes(password,'utf-8'))
+                    
+                print(asd)
                       
-                cur = SqlConnection(zf)
+                cur = SqlConnection(asd)
                     
             else:
                 cur = SqlConnection(values[f"-SUB{checkTab}-"])
@@ -221,12 +226,6 @@ def InitialGui():
             print(namesDB)
             window.Element(f"-FILE{checkTab}-").Update(values=namesDB, size=(20,1))
             
-            
-            
-            
-            
-            
-        
         elif event ==f"-LIST{checkTab}-":
             questChoice = values[f"-LIST{checkTab}-"][0]
             window.Element("-OK-").Update(disabled=False)
