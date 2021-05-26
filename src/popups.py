@@ -5,7 +5,6 @@ from PIL import Image
 
 
 def PopupImage(imageChoice):
-
     layout = [
         [sg.Image(data=imageChoice,key="-IMAGE-")],
     ]
@@ -15,23 +14,6 @@ def PopupImage(imageChoice):
         if event == "Exit" or event == sg.WIN_CLOSED:
             break
     window.close()
-if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -40,7 +22,7 @@ def PopupHelp():
     commonParams = ["#ffff80", ("Helvetica", 15)]
     easterEgg=0
     
-    layout = [
+    layoutPrep = [
                 [sg.Text('Versión de ExamMaker:', text_color=commonParams[0], font=commonParams[1]),
                  sg.Text('0.3', enable_events=True,key = "-VERSION-", tooltip="Click para ver novedades", text_color="#ffafad",font=commonParams[1])],
                 
@@ -54,9 +36,9 @@ def PopupHelp():
             ]
 
 
-    layout = [[sg.Column(layout, element_justification='center')]]
+    layoutMain = [[sg.Column(layoutPrep, element_justification='center')]]
     
-    window = sg.Window('Detalles', layout,icon=r'input/LogoIcon.png')
+    window = sg.Window('Detalles', layoutMain,icon=r'input/LogoIcon.png')
 
     while True:           
         event, values = window.read()
@@ -84,16 +66,16 @@ def PopupThanks():
     commonParams = ["#ffff80", ("Helvetica", 15)]
     easterEgg=0
     
-    layout = [
+    layoutPrep = [
                 [sg.Text('Agradecimientos', text_color=commonParams[0], font=commonParams[1])],
                 [sg.Text('Gracias a los alumnos de Azure Madrid', text_color="#ffafad",font=commonParams[1])],
                 [sg.Text('Gracias a Francisco Luque', text_color="#ffafad",font=commonParams[1])],
             ]
 
 
-    layout = [[sg.Column(layout, element_justification='center')]]
+    layoutMain = [[sg.Column(layoutPrep, element_justification='center')]]
     
-    window = sg.Window(':)', layout, icon=r'input/LogoIcon.png')
+    window = sg.Window(':)', layoutMain, icon=r'input/LogoIcon.png')
 
     while True:           
         event, values = window.read()

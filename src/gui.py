@@ -18,12 +18,16 @@ menu_def = [['Archivo', ['Salir']],['Ayuda', ["Agradecimientos", 'Acerca de...']
 
 
 
-def AnswerGui(cur, realAnswer, userAnswer):
+def AnswerGui(cur, realAnswer, userAnswer, Sentence, justification):
 
     layout = [
-        [sg.Text(f"Elegiste {userAnswer} y la respuesta correcta es {realAnswer[1]}", key="-CORRECT-")],
-        [sg.Text(realAnswer[0], key="-ANSWER-", size=(80,30))],
-        [sg.Button('OK')]
+
+        [sg.Column([[sg.Text(Sentence,font=('Helvetica', 16,), text_color="Yellow", background_color="Blue")],], vertical_alignment='center', justification='center')],
+        [sg.Column([[sg.Text(f"Elegiste {userAnswer} y la respuesta correcta es {realAnswer}", key="-CORRECT-")]], vertical_alignment='center', justification='center')],
+        [sg.Text("")],
+        [sg.Multiline(default_text= GetThings(cur, justification, option="Justification"),size=(43,5), key="-JUS-", disabled=True, enter_submits=False)],
+        [sg.Column([[sg.Button('OK')]], vertical_alignment='center', justification='center')]
+        
     ]
 
     window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.png')
@@ -81,13 +85,13 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
     layout = [
         [sg.Text(GetThings(cur, randomQuestions[n], option="Category"), font=('Helvetica', 16), justification='left', key='-CAT-'),
             sg.Text(font=('Helvetica', 16),size =(12,1), justification='right', key='-TIME-'),
-            sg.Text(f'{n+1} de {questChoice}', size =(11,1),justification="right", font=("Helvetica", 16))],
+            sg.Text(f'{n+1} de {questChoice}', size =(11,1), key="-COUNTER-",justification="right", font=("Helvetica", 16))],
         [sg.Text('')],
         [sg.Frame("Pregunta", layout=[[sg.Multiline
                (default_text= GetThings(cur, randomQuestions[n]),
                 size=(43,5), key="-QUESTION-", disabled=True, enter_submits=False)]])],
-        [sg.Text('')],
-        [sg.Column([[sg.Button('VER IMAGEN ADJUNTA A LA PREGUNTA', 'center', key="-IMAGE-", visible=False)]], vertical_alignment='center', justification='center')],
+        [sg.Text('', key="-SPACE1-", visible=False)],
+        [sg.Column([[sg.Button('VER IMAGEN ADJUNTA A LA PREGUNTA', key="-IMAGE-",enable_events=True, visible=False)]], vertical_alignment='center', justification='center')],
         [sg.Text('')],
         [sg.Frame("Posibles Respuestas", layout=[[sg.Multiline
                (default_text= GetThings(cur, randomQuestions[n], option="Answer"),
@@ -99,7 +103,7 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
         [sg.Button('A',size=(11,1),visible=True), sg.Button('B',size=(11,1),visible=True), sg.Button('C',size=(11,1),visible=False)],
         [sg.Button('D',size=(11,1),visible=False), sg.Button('E',size=(11,1),visible=False), sg.Button('F',size=(11,1),visible=False)],
         [sg.Text('')],
-        [sg.Column([[sg.Button('Confirmar Respuesta', 'center', key="-ENTER-")]], vertical_alignment='center', justification='center')]
+        [sg.Column([[sg.Button('Confirmar Respuesta', key="-ENTER-", enable_events=True)]], vertical_alignment='center', justification='center')]
     ]
 
     window = sg.Window('ExamMaker', layout,icon=r'input/LogoIcon.png')
@@ -111,11 +115,11 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
     
     while True:
         event, values = window.read(timeout=10)
-
         if answerMulti == True:
             correctManager = GetThings(cur, randomQuestions[n], option="Correct")
             correctCounter = len(correctManager.split(","))
-            if correctCounter >1:
+            print(correctCounter)
+            if correctCounter >=2:
                 answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas:'
             else:
                 answerFormatted = f'Respuesta elegida:'
@@ -126,8 +130,11 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
             imageManager = GetThings(cur, randomQuestions[n], option="Image")
             if imageManager!=None:
                 window.Element("-IMAGE-").update(visible=True)
+                window.Element("-SPACE1-").update(visible=True)
+            elif imageManager==None:
+                window.Element("-SPACE1-").update(visible=False)
+                window.Element("-IMAGE-").update(visible=False)
             answerImage=False
-
 
         if answerNeeds == True:
             answerManager = GetThings(cur, randomQuestions[n], option="answer")
@@ -157,6 +164,7 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
                 window.Element("D").update(visible=True)
                 window.Element("E").update(visible=True)
                 window.Element("F").update(visible=True)
+            answerNeeds = False
             
 
         if timeRunning == True:
@@ -172,62 +180,82 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
 
         if event =="-DELETE-":
             answerFormatted = f'Respuesta elegida:'
-            if correctCounter >1:
+            if correctCounter >=2:
                 answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas:'
+                answerCount = 0
             else:
                 answerFormatted = f'Respuesta elegida:'
+                answerCount = 0
             window.Element("-IN-").Update(value=answerFormatted)
-            answerCount =0
 
-        elif event in 'ABCDEF':
-            if answerCount<answerCounter-1:
-                if answerCount ==0:
+        if event in 'ABCDEF':
+    
+            if answerCount ==0:
+                answerChoice = event
+                if correctCounter >=2:
                     answerChoice1 = event
-                    if correctCounter >1:
-                        answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}'
-                    else:
-                        answerFormatted = f'Respuesta elegida: {answerChoice1}'
+                    answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}'
                     window.Element("-IN-").Update(value=answerFormatted)
                     userAnswer = answerChoice1
                     answerCount += 1
-                elif answerChoice1:
-                    answerChoice2 = event
-                    answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}'
+                else:
+                    answerFormatted = f'Respuesta elegida: {answerChoice}'
                     window.Element("-IN-").Update(value=answerFormatted)
-                    userAnswer = answerChoice1 + answerChoice2
-                    answerCount +=1
-                elif answerChoice2:
-                    answerChoice3 = event
-                    answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}'
-                    window.Element("-IN-").Update(value=answerFormatted)
-                    userAnswer = answerChoice1 + answerChoice2 + answerChoice3
-                    answerCount +=1
-                elif answerChoice3:
-                    answerChoice4 = event
-                    answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}, {answerChoice4}'
-                    window.Element("-IN-").Update(value=answerFormatted)
-                    userAnswer = answerChoice1 + answerChoice2 + answerChoice3 + answerChoice4
-                    answerCount +=1
-            elif answerCount==answerCounter-1:
-                answerChoice1 = event
-                answerFormatted = f'Respuesta elegida: {answerChoice1}'
+                    userAnswer = answerChoice
+            elif answerChoice1 in 'ABCDEF':
+                answerChoice2 = event
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}'
                 window.Element("-IN-").Update(value=answerFormatted)
-                userAnswer = answerChoice1
+                userAnswer = f"{answerChoice1},{answerChoice2}"
                 answerCount +=1
-         
+            elif answerChoice2 in 'ABCDEF':
+                answerChoice3 = event
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}'
+                window.Element("-IN-").Update(value=answerFormatted)
+                userAnswer = f"{answerChoice1},{answerChoice2},{answerChoice3}"
+                answerCount +=1
+            elif answerChoice3 in 'ABCDEF':
+                answerChoice4 = event
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}, {answerChoice4}'
+                window.Element("-IN-").Update(value=answerFormatted)
+                userAnswer = f"{answerChoice1},{answerChoice2},{answerChoice3},{answerChoice4}"
+                answerCount +=1
+        
 
-        elif event == "-ENTER-":
-            realAnswer = GetThings(cur, randomQuestions[n], option="answer")
-            AnswerGui(cur,realAnswer,userAnswer)
-            if realAnswer[1] == userAnswer:
+        if event == "-ENTER-":
+            # try:
+            realAnswer = GetThings(cur, randomQuestions[n], option="Correct").split(",")
+            userAnswer = userAnswer.split(",")
+            realAnswer.sort()
+            userAnswer.sort()
+            if realAnswer == userAnswer:
                 correct+=1
-            
+                AnswerGui(cur,realAnswer,userAnswer, "BIEN", randomQuestions[n])
+            else:
+                AnswerGui(cur,realAnswer,userAnswer, "MAL", randomQuestions[n])
+
+
             if n != len(randomQuestions)-1:
                 n +=1
                 window.Element("-QUESTION-").Update(GetThings(cur, randomQuestions[n]))
+                window.Element("-ANSWER-").Update(GetThings(cur, randomQuestions[n], option="Answer"))
+                window.Element("-COUNTER-").Update(f'{n+1} de {questChoice}')
+                answerCount=0
+                answerImage=True
+                answerMulti = True
+                answerNeeds = True
+                
             else:
                 ConclusionGui(window, windowInitial,len(randomQuestions), correct)
                 break
+
+            # except AttributeError:
+            #     sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+            #     continue
+
+            # except UnboundLocalError:
+            #     sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+            #     continue
 
     if os.path.exists("TestDB.db"):
           os.remove("TestDB.db")
