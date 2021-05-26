@@ -1,5 +1,7 @@
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import ToolTip
+import requests
+from zipfile import ZipFile
 
 from src.db import SqlConnection
 from src.question import *
@@ -8,7 +10,7 @@ from src.popups import *
 app_title = 'ExamMaker-V0.3'
 sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth=0, border_width=1)
 
-menu_def = [['Archivo', ['Salir']],['Ayuda', 'Acerca de...']]
+menu_def = [['Archivo', ['Salir']],['Ayuda', ["Agradecimientos", 'Acerca de...']]]
 
 
 
@@ -122,33 +124,33 @@ def InitialGui():
             [sg.Menu(menu_def, tearoff=True)],
             [sg.Text("", size=ParamsEmpty[0])],
 
-            [sg.Frame('Insertar Base de datos', layout=[
+            [sg.Frame('Insertar Base de datos offline', layout=[
             [sg.Text("", font=ParamsEmpty[1])],
             [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
-            sg.Input(key="-FILE-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
-                sg.FileBrowse(button_text = "Seleccionar", key="-SUB-", change_submits=True, enable_events=True, tooltip="Selecciona la base de datos")],
-            [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF-")],
+            sg.Input(key="-FILE1-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
+                sg.FileBrowse(button_text = "Seleccionar", key="-SUB1-", change_submits=True, enable_events=True, tooltip="Selecciona la base de datos")],
+            [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF1-")],
             ])],
 
             [sg.Text("", font=ParamsEmpty[1])],
 
             [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
 
-            sg.Listbox(size=(10,1), enable_events=True, tooltip="Desactivado. Selecciona DB antes", default_values=[0],values=[0], disabled=True,  key="-LIST-")],
+            sg.Listbox(size=(10,1), enable_events=True, tooltip="Desactivado. Selecciona DB antes", default_values=[0],values=[0], disabled=True,  key="-LIST1-")],
 
             [sg.Text("", size=ParamsEmpty[0])]
     ]
 
 
     OnlineLayout = [
-             [sg.Menu(menu_def, tearoff=True)],
+            [sg.Menu(menu_def, tearoff=True)],
             [sg.Text("", size=ParamsEmpty[0])],
 
-            [sg.Frame('Insertar Base de datos', layout=[
+            [sg.Frame('Insertar Base de datos online', layout=[
             [sg.Text("", font=ParamsEmpty[1])],
             [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
-            sg.Input(key="-FILE2-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
-                sg.FileBrowse(button_text = "Seleccionar", key="-SUB2-", change_submits=True, enable_events=True)],
+            sg.Combo(values=[],tooltip="Pulsa'Refrescar'",key="-FILE2-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
+                sg.Button("Refrescar", key="-SUB2-", change_submits=True, enable_events=True)],
             [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF2-")],
             ])],
 
@@ -156,41 +158,77 @@ def InitialGui():
 
             [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
 
-            sg.Listbox(size=(10,1), enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST2-")],
+            sg.Listbox(size=(10,1),auto_size_text=False, enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST2-")],
 
             [sg.Text("", size=ParamsEmpty[0])]
     
     ]
 
     layout = [[sg.TabGroup(
-        [[sg.Tab('BBDD Offline', OfflineLayout), sg.Tab('BBDD Online', OnlineLayout)]],key='-TABS-')],
-        [sg.Button('OK', size=ParamsH3[0], font=ParamsH3[1], key="-OK-", disabled=True, tooltip="Desactivado. Se necesita insertar número de preguntas y database válida")]
+        [[sg.Tab('BBDD Offline', OfflineLayout), sg.Tab('BBDD Online', OnlineLayout)]], enable_events=True,key='-TABS-')],
+        [sg.Button('OK', size=ParamsH3[0], font=ParamsH3[1], key="-OK-", disabled=True, tooltip="Desactivado. Se necesita insertar número de preguntas y database válida")],
     ]
-
+    
+    checkTab= 2
     window = sg.Window('ExamMaker - Pantalla inicial', layout)
     while True:
         event, values = window.read()
+        
+        if event == "-TABS-":
+            if checkTab ==1:
+                checkTab=2
+            else:
+                checkTab=1
+                
         if event == "-OK-":
             window.Hide()
             TestGui(cur, numberQuest, questChoice, window)
 
-        elif event == "-FILE-":
-            cur = SqlConnection(values["-SUB-"])
+        elif event == f"-FILE{checkTab}-":
+            if event == "-FILE2-":
+                dbSelected = requests.get("https://raw.githubusercontent.com/Alexvidalcor/ExamMaker/master/databases/testdb.zip")
+                password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
+                                             keep_on_top=True,
+                                             password_char="*")
+                if password == None:
+                    window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
+                    continue
+                
+                with ZipFile(dbSelected) as zf:
+                      zf.extractall(pwd=bytes(password,'utf-8'))
+                      
+                cur = SqlConnection(zf)
+                    
+            else:
+                cur = SqlConnection(values[f"-SUB{checkTab}-"])
 
             if cur == False:
-                sg.Popup("Base de datos no válida")
+                window.Element(f"-INF{checkTab}-").Update("DB no válida")
 
             else:
+                
                 cur.execute("SELECT COUNT(*) FROM MainExam")
                 numberQuest = cur.fetchall()[0][0]
-
-                window.Element('-INF-').Update(f"Número de preguntas introducidas: {numberQuest}", text_color="#ffff80")
-                window.Element('-LIST-').Update(values=list(range(1,numberQuest+1)), disabled=False)
-                window.Element("-LIST-").set_tooltip("Haz click encima para seleccionar")
+                    
+                window.Element(f'-INF{checkTab}-').Update(f"Número de preguntas introducidas: {numberQuest}", text_color="#ffff80")
+                window.Element(f'-LIST{checkTab}-').Update(values=list(range(1,numberQuest+1)), disabled=False)
+                window.Element(f"-LIST{checkTab}-").set_tooltip("Haz click encima para seleccionar")
                 
+                
+        elif event == f"-SUB2-":
+            dbRequest = requests.get("https://api.github.com/repos/Alexvidalcor/ExamMaker/contents/databases?ref=master")
+            namesDB = [element["name"] for element in dbRequest.json()]
+            print(namesDB)
+            window.Element(f"-FILE{checkTab}-").Update(values=namesDB, size=(20,1))
+            
+            
+            
+            
+            
+            
         
-        elif event =="-LIST-":
-            questChoice = values["-LIST-"][0]
+        elif event ==f"-LIST{checkTab}-":
+            questChoice = values[f"-LIST{checkTab}-"][0]
             window.Element("-OK-").Update(disabled=False)
             window.Element("-OK-").set_tooltip("¡Ánimo y suerte!")
         

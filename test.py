@@ -1,4 +1,9 @@
+import requests
 
-correct =0
+asd = requests.get("https://raw.githubusercontent.com/Alexvidalcor/ExamMaker/master/databases/testdb.zip")
 
-correct +=1 if True
+print(asd.content)
+
+
+
+    
