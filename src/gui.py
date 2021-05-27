@@ -40,12 +40,10 @@ def AnswerGui(cur, realAnswer, userAnswer, Sentence, justification):
         if event is None or event == 'Exit' or event == "Salir":
             break
             
-    if os.path.exists("testDB.db"):
-          os.remove("testDB.db")
     window.close()
 
 
-def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
+def ConclusionGui(con, windowTest, windowInitial, totalAnswers, correctAnswers):
 
     perCorrect = correctAnswers/totalAnswers
     if perCorrect >= 0.7:
@@ -70,14 +68,15 @@ def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
         if event is None or event == 'Exit' or event == "Salir":
             break
 
-    if os.path.exists("testDB.db"):
-          os.remove("testDB.db")
+    if os.path.exists("TestDB.db"):
+        con.close()
+        os.remove("TestDB.db")
     windowInitial.close()
     windowTest.close()
     window.close()
 
 
-def TestGui(cur, numberQuest, questChoice, windowInitial):
+def TestGui(con, cur, numberQuest, questChoice, windowInitial):
 
     randomQuestions = random.sample(range(1,numberQuest+1), questChoice)
     n = 0
@@ -118,7 +117,6 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
         if answerMulti == True:
             correctManager = GetThings(cur, randomQuestions[n], option="Correct")
             correctCounter = len(correctManager.split(","))
-            print(correctCounter)
             if correctCounter >=2:
                 answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas:'
             else:
@@ -223,42 +221,43 @@ def TestGui(cur, numberQuest, questChoice, windowInitial):
         
 
         if event == "-ENTER-":
-            # try:
-            realAnswer = GetThings(cur, randomQuestions[n], option="Correct").split(",")
-            userAnswer = userAnswer.split(",")
-            realAnswer.sort()
-            userAnswer.sort()
-            if realAnswer == userAnswer:
-                correct+=1
-                AnswerGui(cur,realAnswer,userAnswer, "BIEN", randomQuestions[n])
-            else:
-                AnswerGui(cur,realAnswer,userAnswer, "MAL", randomQuestions[n])
+            try:
+                realAnswer = GetThings(cur, randomQuestions[n], option="Correct").split(",")
+                userAnswer = userAnswer.split(",")
+                realAnswer.sort()
+                userAnswer.sort()
+                if realAnswer == userAnswer:
+                    correct+=1
+                    AnswerGui(cur,realAnswer,userAnswer, "BIEN", randomQuestions[n])
+                else:
+                    AnswerGui(cur,realAnswer,userAnswer, "MAL", randomQuestions[n])
 
 
-            if n != len(randomQuestions)-1:
-                n +=1
-                window.Element("-QUESTION-").Update(GetThings(cur, randomQuestions[n]))
-                window.Element("-ANSWER-").Update(GetThings(cur, randomQuestions[n], option="Answer"))
-                window.Element("-COUNTER-").Update(f'{n+1} de {questChoice}')
-                answerCount=0
-                answerImage=True
-                answerMulti = True
-                answerNeeds = True
-                
-            else:
-                ConclusionGui(window, windowInitial,len(randomQuestions), correct)
-                break
+                if n != len(randomQuestions)-1:
+                    n +=1
+                    window.Element("-QUESTION-").Update(GetThings(cur, randomQuestions[n]))
+                    window.Element("-ANSWER-").Update(GetThings(cur, randomQuestions[n], option="Answer"))
+                    window.Element("-COUNTER-").Update(f'{n+1} de {questChoice}')
+                    answerCount=0
+                    answerImage=True
+                    answerMulti = True
+                    answerNeeds = True
+                    
+                else:
+                    ConclusionGui(con, window, windowInitial,len(randomQuestions), correct)
+                    break
 
-            # except AttributeError:
-            #     sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
-            #     continue
+            except AttributeError:
+                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+                continue
 
-            # except UnboundLocalError:
-            #     sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
-            #     continue
+            except UnboundLocalError:
+                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+                continue
 
     if os.path.exists("TestDB.db"):
-          os.remove("TestDB.db")
+        con.close()
+        os.remove("TestDB.db")
     windowInitial.close()
     window.close()
 
@@ -321,7 +320,7 @@ def InitialGui():
     ]
     
     checkTab= 2
-    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon=r'input/LogoIcon.png')
+    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon=r'input/LogoIco.png')
     while True:
         event, values = window.read()
         
@@ -333,7 +332,7 @@ def InitialGui():
                 
         if event == "-OK-":
             window.Hide()
-            TestGui(cur, numberQuest, questChoice, window)
+            TestGui(con, cur, numberQuest, questChoice, window)
 
         elif event == f"-FILE{checkTab}-":
             try:
@@ -348,7 +347,7 @@ def InitialGui():
                         continue
                     with ZipFile(BytesIO(dbSelected.content)) as zf:
                         zf.extractall(pwd=bytes(password,'utf-8'))
-                        cur = SqlConnection("TestDB.db")
+                        con, cur = SqlConnection("TestDB.db")
                         
                 else:
                     password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
@@ -360,7 +359,7 @@ def InitialGui():
                         continue
                     with ZipFile(values[f"-SUB{checkTab}-"]) as zf:
                         zf.extractall(pwd=bytes(password,'utf-8'))
-                        cur = SqlConnection("TestDB.db")
+                        con, cur = SqlConnection("TestDB.db")
             except BadZipFile:
                 window.Element(f"-INF{checkTab}-").Update("ZIP no válido")
                 continue
@@ -407,7 +406,8 @@ def InitialGui():
             break
     
     if os.path.exists("TestDB.db"):
-          os.remove("TestDB.db")
+        con.close()
+        os.remove("TestDB.db")
     window.close()        
 
 

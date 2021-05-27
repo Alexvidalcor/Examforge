@@ -8,7 +8,7 @@ def PopupImage(imageChoice):
     layout = [
         [sg.Image(data=imageChoice,key="-IMAGE-")],
     ]
-    window = sg.Window("ExamMaker - Visualizador", layout,icon=r'input/LogoIcon.png')
+    window = sg.Window("ExamMaker - Visualizador", layout,icon=r'input/LogoIcon.ico')
     while True:
         event, values = window.read()
         if event == "Exit" or event == sg.WIN_CLOSED:
