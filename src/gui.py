@@ -1,30 +1,49 @@
 import PySimpleGUI as sg
+from PySimpleGUI.PySimpleGUI import ToolTip
+import requests
+from zipfile import ZipFile, BadZipFile
+from io import BytesIO
+import os
+from socket import gaierror
+import random
+import re
 
-from src.db import SqlConnection
-from src.question import *
+from src.db import SqlConnection, GetThings
+from src.popups import PopupHelp, PopupThanks, PopupImage
 
-def AnswerGui(cur, realAnswer, userAnswer):
+app_title = 'ExamMaker-V0.3'
+sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth=0, border_width=1)
+
+menu_def = [['Archivo', ['Salir']],['Ayuda', ["Agradecimientos", 'Acerca de...']]]
+
+
+
+def AnswerGui(cur, realAnswer, userAnswer, Sentence, justification):
 
     layout = [
-        [sg.Text(f"Elegiste {userAnswer} y la respuesta correcta es {realAnswer[1]}", key="-CORRECT-")],
-        [sg.Text(realAnswer[0], key="-ANSWER-", size=(80,30))],
-        [sg.Button('OK')]
+
+        [sg.Column([[sg.Text(Sentence,font=('Helvetica', 16,), text_color="Yellow", background_color="Blue")],], vertical_alignment='center', justification='center')],
+        [sg.Column([[sg.Text(f"Elegiste {userAnswer} y la respuesta correcta es {realAnswer}", key="-CORRECT-")]], vertical_alignment='center', justification='center')],
+        [sg.Text("")],
+        [sg.Multiline(default_text= GetThings(cur, justification, option="Justification"),size=(43,5), key="-JUS-", disabled=True, enter_submits=False)],
+        [sg.Column([[sg.Button('OK')]], vertical_alignment='center', justification='center')]
+        
     ]
 
-    window = sg.Window('Teams Exam - Answer', layout)
+    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.png')
     while True:
         event, values = window.read()
 
         if event == "OK":
             break
 
-        elif event is None or event == 'Exit':
+        if event is None or event == 'Exit' or event == "Salir":
             break
-
+            
     window.close()
 
 
-def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
+def ConclusionGui(con, windowTest, windowInitial, totalAnswers, correctAnswers):
 
     perCorrect = correctAnswers/totalAnswers
     if perCorrect >= 0.7:
@@ -39,117 +58,356 @@ def ConclusionGui(windowTest, windowInitial, totalAnswers, correctAnswers):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('Teams Exam - Answer', layout)
+    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.png')
     while True:
         event, values = window.read()
 
         if event == "OK":
             break
 
-        elif event is None or event == 'Exit':
+        if event is None or event == 'Exit' or event == "Salir":
             break
 
+    if os.path.exists("TestDB.db"):
+        con.close()
+        os.remove("TestDB.db")
     windowInitial.close()
     windowTest.close()
     window.close()
 
 
+def TestGui(con, cur, numberQuest, questChoice, windowInitial):
 
-
-
-def TestGui(cur, numberQuest, questChoice, windowInitial):
-
-    randomQuestions = random.sample(range(numberQuest), questChoice)
+    randomQuestions = random.sample(range(1,numberQuest+1), questChoice)
     n = 0
     correct = 0
-    layout = [[sg.Text(GetThings(cur, randomQuestions[n]), size=(80,30), key="-QUESTION-")],
-        [sg.InputText('Respuesta elegida: ', readonly=True, key='-IN-')],
-        [sg.Text('Elige tu respuesta:', key='-OUT-')],
-        [sg.Button('A'), sg.Button('B'), sg.Button('C')],
-        [sg.Button('D'), sg.Button('E'), sg.Button('F')],
-        [sg.Button('Enter')]
+    layout = [
+        [sg.Text(GetThings(cur, randomQuestions[n], option="Category"), font=('Helvetica', 16), justification='left', key='-CAT-'),
+            sg.Text(font=('Helvetica', 16),size =(12,1), justification='right', key='-TIME-'),
+            sg.Text(f'{n+1} de {questChoice}', size =(11,1), key="-COUNTER-",justification="right", font=("Helvetica", 16))],
+        [sg.Text('')],
+        [sg.Frame("Pregunta", layout=[[sg.Multiline
+               (default_text= GetThings(cur, randomQuestions[n]),
+                size=(43,5), key="-QUESTION-", disabled=True, enter_submits=False)]])],
+        [sg.Text('', key="-SPACE1-", visible=False)],
+        [sg.Column([[sg.Button('VER IMAGEN ADJUNTA A LA PREGUNTA', key="-IMAGE-",enable_events=True, visible=False)]], vertical_alignment='center', justification='center')],
+        [sg.Text('')],
+        [sg.Frame("Posibles Respuestas", layout=[[sg.Multiline
+               (default_text= GetThings(cur, randomQuestions[n], option="Answer"),
+                size=(43,5), key="-ANSWER-", disabled=True, enter_submits=False)]])],
+        [sg.Text('')],
+        [sg.InputText('Respuesta elegida: ', size=(40,1), readonly=True, key='-IN-'), 
+            sg.Button(image_filename="input/DeleteAnswer.png", key="-DELETE-", enable_events=True,image_size=(40,30), image_subsample=13)],
+        [sg.Text('')],
+        [sg.Button('A',size=(11,1),visible=True), sg.Button('B',size=(11,1),visible=True), sg.Button('C',size=(11,1),visible=False)],
+        [sg.Button('D',size=(11,1),visible=False), sg.Button('E',size=(11,1),visible=False), sg.Button('F',size=(11,1),visible=False)],
+        [sg.Text('')],
+        [sg.Column([[sg.Button('Confirmar Respuesta', key="-ENTER-", enable_events=True)]], vertical_alignment='center', justification='center')]
     ]
 
-    window = sg.Window('Teams Exam', layout)
+    window = sg.Window('ExamMaker', layout,icon=r'input/LogoIcon.png')
 
+    timeRunning, counter = True, 0
+    answerNeeds = True
+    answerMulti, answerCount = True, 0
+    answerImage =True
+    
     while True:
-        event, values = window.read()
+        event, values = window.read(timeout=10)
+        if answerMulti == True:
+            correctManager = GetThings(cur, randomQuestions[n], option="Correct")
+            correctCounter = len(correctManager.split(","))
+            if correctCounter >=2:
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas:'
+            else:
+                answerFormatted = f'Respuesta elegida:'
+            window.Element("-IN-").Update(value=answerFormatted)
+            answerMulti=False
 
-        if event is None or event == 'Exit':
+        if answerImage==True:
+            imageManager = GetThings(cur, randomQuestions[n], option="Image")
+            if imageManager!=None:
+                window.Element("-IMAGE-").update(visible=True)
+                window.Element("-SPACE1-").update(visible=True)
+            elif imageManager==None:
+                window.Element("-SPACE1-").update(visible=False)
+                window.Element("-IMAGE-").update(visible=False)
+            answerImage=False
+
+        if answerNeeds == True:
+            answerManager = GetThings(cur, randomQuestions[n], option="answer")
+            answerCounter = len(re.findall("[A-Z][.]", answerManager))
+            if answerCounter ==2:
+                window.Element("C").update(visible=False)
+                window.Element("D").update(visible=False)
+                window.Element("E").update(visible=False)
+                window.Element("F").update(visible=False)
+            elif answerCounter ==3:
+                window.Element("C").update(visible=True)
+                window.Element("D").update(visible=False)
+                window.Element("E").update(visible=False)
+                window.Element("F").update(visible=False)
+            elif answerCounter ==4:
+                window.Element("C").update(visible=True)
+                window.Element("D").update(visible=True)
+                window.Element("E").update(visible=False)
+                window.Element("F").update(visible=False)
+            elif answerCounter ==5:
+                window.Element("C").update(visible=True)
+                window.Element("D").update(visible=True)
+                window.Element("E").update(visible=True)
+                window.Element("F").update(visible=False)
+            elif answerCounter ==6:
+                window.Element("C").update(visible=True)
+                window.Element("D").update(visible=True)
+                window.Element("E").update(visible=True)
+                window.Element("F").update(visible=True)
+            answerNeeds = False
+            
+
+        if timeRunning == True:
+            window.Element('-TIME-').update('{:02d}:{:02d}:{:02d}'.format((counter // 100)//3600,(counter // 100) // 60, (counter // 100) % 60))
+            counter += 1
+        
+        if event is None or event == 'Exit' or event == "Salir":
             break
 
-        elif event in 'ABCDEF':
-            answerFormatted = f'Respuesta elegida: {event}'
-            window.Element("-IN-").Update(value=answerFormatted)
-            userAnswer = event
+        if event == "-IMAGE-":
+            imageManager = GetThings(cur, randomQuestions[n], option="Image")
+            PopupImage(imageManager)
 
-        elif event == "Enter":
-            realAnswer = GetThings(cur, randomQuestions[n], question=False)
-            AnswerGui(cur,realAnswer,userAnswer)
-            if realAnswer[1] == userAnswer:
-                correct+=1
-            
-            if n != len(randomQuestions)-1:
-                n +=1
-                window.Element("-QUESTION-").Update(GetThings(cur, randomQuestions[n]))
+        if event =="-DELETE-":
+            answerFormatted = f'Respuesta elegida:'
+            if correctCounter >=2:
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas:'
+                answerCount = 0
             else:
-                ConclusionGui(window, windowInitial,len(randomQuestions), correct)
-                break
+                answerFormatted = f'Respuesta elegida:'
+                answerCount = 0
+            window.Element("-IN-").Update(value=answerFormatted)
 
+        if event in 'ABCDEF':
+    
+            if answerCount ==0:
+                answerChoice = event
+                if correctCounter >=2:
+                    answerChoice1 = event
+                    answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}'
+                    window.Element("-IN-").Update(value=answerFormatted)
+                    userAnswer = answerChoice1
+                    answerCount += 1
+                else:
+                    answerFormatted = f'Respuesta elegida: {answerChoice}'
+                    window.Element("-IN-").Update(value=answerFormatted)
+                    userAnswer = answerChoice
+            elif answerChoice1 in 'ABCDEF':
+                answerChoice2 = event
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}'
+                window.Element("-IN-").Update(value=answerFormatted)
+                userAnswer = f"{answerChoice1},{answerChoice2}"
+                answerCount +=1
+            elif answerChoice2 in 'ABCDEF':
+                answerChoice3 = event
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}'
+                window.Element("-IN-").Update(value=answerFormatted)
+                userAnswer = f"{answerChoice1},{answerChoice2},{answerChoice3}"
+                answerCount +=1
+            elif answerChoice3 in 'ABCDEF':
+                answerChoice4 = event
+                answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}, {answerChoice4}'
+                window.Element("-IN-").Update(value=answerFormatted)
+                userAnswer = f"{answerChoice1},{answerChoice2},{answerChoice3},{answerChoice4}"
+                answerCount +=1
+        
+
+        if event == "-ENTER-":
+            try:
+                realAnswer = GetThings(cur, randomQuestions[n], option="Correct").split(",")
+                userAnswer = userAnswer.split(",")
+                realAnswer.sort()
+                userAnswer.sort()
+                if realAnswer == userAnswer:
+                    correct+=1
+                    AnswerGui(cur,realAnswer,userAnswer, "BIEN", randomQuestions[n])
+                else:
+                    AnswerGui(cur,realAnswer,userAnswer, "MAL", randomQuestions[n])
+
+
+                if n != len(randomQuestions)-1:
+                    n +=1
+                    window.Element("-QUESTION-").Update(GetThings(cur, randomQuestions[n]))
+                    window.Element("-ANSWER-").Update(GetThings(cur, randomQuestions[n], option="Answer"))
+                    window.Element("-COUNTER-").Update(f'{n+1} de {questChoice}')
+                    answerCount=0
+                    answerImage=True
+                    answerMulti = True
+                    answerNeeds = True
+                    
+                else:
+                    ConclusionGui(con, window, windowInitial,len(randomQuestions), correct)
+                    break
+
+            except AttributeError:
+                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+                continue
+
+            except UnboundLocalError:
+                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+                continue
+
+    if os.path.exists("TestDB.db"):
+        con.close()
+        os.remove("TestDB.db")
     windowInitial.close()
     window.close()
 
 
-
 def InitialGui():
 
-    commonParams = [(30, 1), (10, 1), ("Helvetica", 12), (20, 1), (38, 1)]
+    ParamsH1 = [(45, 1), ("Helvetica", 18)]
+    ParamsH2 = [(45, 1), ("Helvetica", 15)]
+    ParamsH3 = [(20, 1), ("Helvetica", 12)]
+    ParamsEmpty=[(1,1),("any 1")]
+ 
 
-    layout = [[sg.Text('Introduce los siguientes datos para iniciar el examen:', size=(50, 2), font=commonParams[2])],
-    [sg.Text("Selecciona la DB: "), sg.Input(key="-FILE-", change_submits=True), sg.FileBrowse(button_text = "Seleccionar", key="-FILEBROWSER-"), sg.Button("Aceptar", key = "-SUB-")],
-    [sg.Text('No se ha introducido DB', size=commonParams[0], font=commonParams[2], key="-INF-")],
-    [sg.Text("Selecciona el número de preguntas:"), sg.Listbox(size=commonParams[1], enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST-")],
-    [sg.Button('OK', key="-OK-", disabled=True)]]
+    OfflineLayout = [
+            [sg.Menu(menu_def, tearoff=True)],
+            [sg.Text("", size=ParamsEmpty[0])],
 
-    window = sg.Window('Teams Exam - Answer', layout)
+            [sg.Frame('Insertar Base de datos offline', layout=[
+            [sg.Text("", font=ParamsEmpty[1])],
+            [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
+            sg.Input(key="-FILE1-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
+                sg.FileBrowse(button_text = "Seleccionar",key="-SUB1-", change_submits=True, enable_events=True, tooltip="Selecciona la base de datos")],
+            [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF1-")],
+            ])],
+
+            [sg.Text("", font=ParamsEmpty[1])],
+
+            [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
+
+            sg.Listbox(size=(10,1), enable_events=True, tooltip="Desactivado. Selecciona DB antes", default_values=[0],values=[0], disabled=True,  key="-LIST1-")],
+
+            [sg.Text("", size=ParamsEmpty[0])]
+    ]
+
+
+    OnlineLayout = [
+            [sg.Menu(menu_def, tearoff=True)],
+            [sg.Text("", size=ParamsEmpty[0])],
+
+            [sg.Frame('Insertar Base de datos online', layout=[
+            [sg.Text("", font=ParamsEmpty[1])],
+            [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
+            sg.Combo(values=[],tooltip="Pulsa'Refrescar'",key="-FILE2-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
+                sg.Button("Refrescar", key="-SUB2-", change_submits=True, enable_events=True)],
+            [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF2-")],
+            ])],
+
+            [sg.Text("", font=ParamsEmpty[1])],
+
+            [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
+
+            sg.Listbox(size=(10,1),auto_size_text=False, enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST2-")],
+
+            [sg.Text("", size=ParamsEmpty[0])]
+    
+    ]
+
+    layout = [[sg.TabGroup(
+        [[sg.Tab('BBDD Offline', OfflineLayout), sg.Tab('BBDD Online', OnlineLayout)]], enable_events=True,key='-TABS-')],
+        [sg.Button('OK', size=ParamsH3[0], font=ParamsH3[1], key="-OK-", disabled=True, tooltip="Desactivado. Se necesita insertar número de preguntas y database válida")],
+    ]
+    
+    checkTab= 2
+    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon=r'input/LogoIco.png')
     while True:
         event, values = window.read()
+        
+        if event == "-TABS-":
+            if checkTab ==1:
+                checkTab=2
+            else:
+                checkTab=1
+                
         if event == "-OK-":
             window.Hide()
-            TestGui(cur, numberQuest, questChoice, window)
+            TestGui(con, cur, numberQuest, questChoice, window)
 
-        elif event == "-SUB-":
-            cur = SqlConnection(values["-FILEBROWSER-"])
-
+        elif event == f"-FILE{checkTab}-":
+            try:
+                if event == "-FILE2-":
+                    dbSelected = requests.get(f"https://raw.githubusercontent.com/Alexvidalcor/ExamMaker/master/databases/{values['-FILE2-']}")
+                    password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
+                                             keep_on_top=True,
+                                             password_char="*",
+                                             grab_anywhere=False)
+                    if password == None:
+                        window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
+                        continue
+                    with ZipFile(BytesIO(dbSelected.content)) as zf:
+                        zf.extractall(pwd=bytes(password,'utf-8'))
+                        con, cur = SqlConnection("TestDB.db")
+                        
+                else:
+                    password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
+                                             keep_on_top=True,
+                                             password_char="*",
+                                             grab_anywhere=False)
+                    if password == None:
+                        window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
+                        continue
+                    with ZipFile(values[f"-SUB{checkTab}-"]) as zf:
+                        zf.extractall(pwd=bytes(password,'utf-8'))
+                        con, cur = SqlConnection("TestDB.db")
+            except BadZipFile:
+                window.Element(f"-INF{checkTab}-").Update("ZIP no válido")
+                continue
+            except RuntimeError:
+                window.Element(f"-INF{checkTab}-").Update("Contraseña no válida")
+                continue
+            except FileNotFoundError:
+                window.Element(f"-INF{checkTab}-").Update("Error raro")
+                continue
+            
             if cur == False:
-                sg.Popup("Base de datos no válida")
+                window.Element(f"-INF{checkTab}-").Update("DB no válida")
 
             else:
-                cur.execute("SELECT COUNT(*) FROM MainExam")
+                cur.execute("SELECT COUNT(*) FROM MainTest")
                 numberQuest = cur.fetchall()[0][0]
-
-                window.Element('-INF-').Update(f"Número de preguntas introducidas: {numberQuest}")
-                window.Element('-LIST-').Update(values=list(range(1,numberQuest+1)), disabled=False)
-        
-        elif event =="-LIST-":
-            questChoice = values["-LIST-"][0]
+                    
+                window.Element(f'-INF{checkTab}-').Update(f"Número de preguntas introducidas: {numberQuest}", text_color="#ffff80")
+                window.Element(f'-LIST{checkTab}-').Update(values=list(range(1,numberQuest+1)), disabled=False)
+                window.Element(f"-LIST{checkTab}-").set_tooltip("Haz click encima para seleccionar")
+                
+                
+        elif event == f"-SUB2-":
+            try:
+                dbRequest = requests.get("https://api.github.com/repos/Alexvidalcor/ExamMaker/contents/databases?ref=master")
+                window.Element(f"-INF{checkTab}-").Update("Conectado a internet")
+                namesDB = [element["name"] for element in dbRequest.json()]
+                window.Element(f"-FILE{checkTab}-").Update(values=namesDB, size=(20,1))
+            except Exception:
+                window.Element(f"-INF{checkTab}-").Update("Sin conexión a internet")
+                continue
+                
+        elif event ==f"-LIST{checkTab}-":
+            questChoice = values[f"-LIST{checkTab}-"][0]
             window.Element("-OK-").Update(disabled=False)
-
-        if event is None or event == 'Exit':
-            break
+            window.Element("-OK-").set_tooltip("¡Ánimo y suerte!")
         
+        elif event == "Acerca de...":
+            PopupHelp()
+        elif event == "Agradecimientos":
+            PopupThanks()
+
+        if event is None or event == 'Exit' or event == "Salir":
+            break
+    
+    if os.path.exists("TestDB.db"):
+        con.close()
+        os.remove("TestDB.db")
     window.close()        
-
-
-
-
-
-
-
-
-
-
-
-
 
 
