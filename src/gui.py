@@ -7,8 +7,8 @@ from socket import gaierror
 import random
 import re
 
-from db import SqlConnection, GetThings
-from popups import PopupHelp, PopupThanks, PopupImage
+from src.db import SqlConnection, GetThings
+from src.popups import PopupImage
 
 
 
