@@ -23,7 +23,7 @@ def AnswerGui(cur, realAnswer, userAnswer, Sentence, justification):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout, web_port=2228, web_start_browser=False)
+    window = sg.Window('ExamMaker - Answer', layout)
 
     while True:
         event, values = window.read()
@@ -54,7 +54,7 @@ def ConclusionGui(con, windowTest, windowInitial, totalAnswers, correctAnswers):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout, web_port=2228, web_start_browser=False)
+    window = sg.Window('ExamMaker - Answer', layout)
     while True:
         event, values = window.read()
 
@@ -112,7 +112,7 @@ def TestGui(con, cur, numberQuest, questChoice, windowInitial):
         [sg.Text('')],
         [sg.Button('Confirmar Respuesta', key="-ENTER-", enable_events=True)]]
 
-    window = sg.Window('ExamMaker', layout, web_port=2228, web_start_browser=False)
+    window = sg.Window('ExamMaker', layout)
 
     timeRunning, counter = True, 0
     answerNeeds = True
