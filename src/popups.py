@@ -1,16 +1,15 @@
-import PySimpleGUI as sg
+import PySimpleGUIWeb as sg
 
-import webbrowser
 from PIL import Image
-
 
 def PopupImage(imageChoice):
     layout = [
         [sg.Image(data=imageChoice,key="-IMAGE-")],
+        [sg.Button("Salir")]
     ]
-    window = sg.Window("ExamMaker - Visualizador", layout,icon=r'input/LogoIcon.ico')
+    window = sg.Window("ExamMaker - Visualizador", layout)
     while True:
         event, values = window.read()
-        if event == "Exit" or event == sg.WIN_CLOSED:
+        if event == "Salir" or event == sg.WIN_CLOSED:
             break
     window.close()

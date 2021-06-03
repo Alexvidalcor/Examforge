@@ -273,7 +273,7 @@ def InitialGui():
 
 
 
-    window = sg.Window('ExamMaker - Web', layout, web_port=2228, web_start_browser=True)
+    window = sg.Window('ExamMaker - Web', layout, web_port=2222, web_start_browser=False, disable_close=True)
     while True:
         event, values = window.read()
         print(event)
