@@ -3,13 +3,10 @@
 _Programa que permite generar un examen a partir de una BBDD proporcionada._
 
 
-Ventana Preguntas        |  Ventana Respuestas
+Ventana Intro     |   Ventana Preguntas  
 :-------------------------:|:-------------------------:
-![Question_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Question.png?raw=true)  |  ![Answer_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Answer.png?raw=true)
+![Intro_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Intro.png?raw=true) | ![Question_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Question.png?raw=true) 
 
-Ventana Intro        |  Ventana Final
-:-------------------------:|:-------------------------:
-![Intro_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Intro.png?raw=true)  |  ![End_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-End.png?raw=true)
 
 
 ## Estado del proyecto ⚙️
@@ -17,8 +14,9 @@ Ventana Intro        |  Ventana Final
 Servicios          |  Estado
 :-------------------------:|:-------------------------:
 Gestión de preguntas básicas  |  OK
-Soporte respuestas múltiples  |  En desarrollo
-Soporte de imágenes | En desarrollo
+Soporte respuestas múltiples  |  OK
+Soporte de imágenes | OK
+Analítica de datos | En desarrollo
 
 
 ## Ejecución del programa 🚀
