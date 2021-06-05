@@ -1,0 +1,3 @@
+PySimpleGUI
+Pillow
+sqlite3

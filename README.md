@@ -37,7 +37,7 @@ git clone https://github.com/Alexvidalcor/ExamMaker
 
 cd ExamMaker/
 
-pip3 install pysimplegui
+pip3 install -r requirements.txt
 
 python3 main.py
 ```
