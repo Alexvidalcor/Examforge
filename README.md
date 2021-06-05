@@ -17,8 +17,9 @@ Ventana Intro        |  Ventana Final
 Servicios          |  Estado
 :-------------------------:|:-------------------------:
 Gestión de preguntas básicas  |  OK
-Soporte respuestas múltiples  |  En desarrollo
-Soporte de imágenes | En desarrollo
+Soporte respuestas múltiples  |  OK
+Soporte de imágenes | OK
+Analítica de datos | En desarrollo
 
 
 ## Ejecución del programa 🚀
