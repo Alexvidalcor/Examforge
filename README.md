@@ -17,6 +17,7 @@ Gestión de preguntas básicas  |  OK
 Soporte respuestas múltiples  |  OK
 Soporte de imágenes | OK
 Analítica de datos | En desarrollo
+Constructor de DB | En desarrollo
 
 
 ## Ejecución del programa 🚀
