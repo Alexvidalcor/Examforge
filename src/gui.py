@@ -16,12 +16,13 @@ sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth
 
 menu_def = [['Archivo', ['Salir']],['Ayuda', ["Agradecimientos", 'Acerca de...']]]
 
-
+def place(elem):
+    return sg.Column([[elem]], pad=(0,0))
 
 def AnswerGui(cur, realAnswer, userAnswer, Sentence, justification):
 
     layout = [
-
+        
         [sg.Column([[sg.Text(Sentence,font=('Helvetica', 16,), text_color="Yellow", background_color="Blue")],], vertical_alignment='center', justification='center')],
         [sg.Column([[sg.Text(f"Elegiste {userAnswer} y la respuesta correcta es {realAnswer}", key="-CORRECT-")]], vertical_alignment='center', justification='center')],
         [sg.Text("")],
@@ -30,7 +31,7 @@ def AnswerGui(cur, realAnswer, userAnswer, Sentence, justification):
         
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.png')
+    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.ico')
     while True:
         event, values = window.read()
 
@@ -58,7 +59,7 @@ def ConclusionGui(con, windowTest, windowInitial, totalAnswers, correctAnswers):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.png')
+    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.ico')
     while True:
         event, values = window.read()
 
@@ -99,13 +100,13 @@ def TestGui(con, cur, numberQuest, questChoice, windowInitial):
         [sg.InputText('Respuesta elegida: ', size=(40,1), readonly=True, key='-IN-'), 
             sg.Button(image_filename="input/DeleteAnswer.png", key="-DELETE-", enable_events=True,image_size=(40,30), image_subsample=13)],
         [sg.Text('')],
-        [sg.Button('A',size=(11,1),visible=True), sg.Button('B',size=(11,1),visible=True), sg.Button('C',size=(11,1),visible=False)],
-        [sg.Button('D',size=(11,1),visible=False), sg.Button('E',size=(11,1),visible=False), sg.Button('F',size=(11,1),visible=False)],
+        [sg.Button('A',size=(11,1),visible=True), sg.Button('B',size=(11,1),visible=True), place(sg.Button('C',size=(11,1),visible=False))],
+        [place(sg.Button('D',size=(11,1),visible=False)), place(sg.Button('E',size=(11,1),visible=False)), place(sg.Button('F',size=(11,1),visible=False))],
         [sg.Text('')],
         [sg.Column([[sg.Button('Confirmar Respuesta', key="-ENTER-", enable_events=True)]], vertical_alignment='center', justification='center')]
     ]
 
-    window = sg.Window('ExamMaker', layout,icon=r'input/LogoIcon.png')
+    window = sg.Window('ExamMaker', layout,icon=r'input/LogoIcon.ico')
 
     timeRunning, counter = True, 0
     answerNeeds = True
@@ -200,19 +201,19 @@ def TestGui(con, cur, numberQuest, questChoice, windowInitial):
                     answerFormatted = f'Respuesta elegida: {answerChoice}'
                     window.Element("-IN-").Update(value=answerFormatted)
                     userAnswer = answerChoice
-            elif answerChoice1 in 'ABCDEF':
+            elif answerCount ==1 and correctCounter >=2:
                 answerChoice2 = event
                 answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}'
                 window.Element("-IN-").Update(value=answerFormatted)
                 userAnswer = f"{answerChoice1},{answerChoice2}"
                 answerCount +=1
-            elif answerChoice2 in 'ABCDEF':
+            elif answerCount ==2 and correctCounter >=3:
                 answerChoice3 = event
                 answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}'
                 window.Element("-IN-").Update(value=answerFormatted)
                 userAnswer = f"{answerChoice1},{answerChoice2},{answerChoice3}"
                 answerCount +=1
-            elif answerChoice3 in 'ABCDEF':
+            elif answerCount ==3 and correctCounter ==4:
                 answerChoice4 = event
                 answerFormatted = f'(MULTI-{correctCounter}) Respuestas elegidas: {answerChoice1}, {answerChoice2}, {answerChoice3}, {answerChoice4}'
                 window.Element("-IN-").Update(value=answerFormatted)
@@ -248,11 +249,11 @@ def TestGui(con, cur, numberQuest, questChoice, windowInitial):
                     break
 
             except AttributeError:
-                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.ico')
                 continue
 
             except UnboundLocalError:
-                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.png')
+                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.ico')
                 continue
 
     if os.path.exists("TestDB.db"):
@@ -286,7 +287,7 @@ def InitialGui():
 
             [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
 
-            sg.Listbox(size=(10,1), enable_events=True, tooltip="Desactivado. Selecciona DB antes", default_values=[0],values=[0], disabled=True,  key="-LIST1-")],
+            sg.Combo(size=(10,5), auto_size_text=False, readonly=True, enable_events=True, tooltip="Desactivado. Selecciona DB antes", default_value=[0],values=[0], disabled=True,  key="-LIST1-")],
 
             [sg.Text("", size=ParamsEmpty[0])]
     ]
@@ -308,7 +309,7 @@ def InitialGui():
 
             [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
 
-            sg.Listbox(size=(10,1),auto_size_text=False, enable_events=True, default_values=[0],values=[0], disabled=True,  key="-LIST2-")],
+            sg.Combo(size=(10,5),auto_size_text=False, readonly=True, enable_events=True, default_value=[0],values=[0], disabled=True,  key="-LIST2-")],
 
             [sg.Text("", size=ParamsEmpty[0])]
     
@@ -320,7 +321,7 @@ def InitialGui():
     ]
     
     checkTab= 2
-    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon=r'input/LogoIco.png')
+    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon=r'input/LogoIcon.ico')
     while True:
         event, values = window.read()
         
@@ -341,7 +342,8 @@ def InitialGui():
                     password = sg.popup_get_text("Introduce aquí la contraseña:", title="ExamMaker - Contraseña",
                                              keep_on_top=True,
                                              password_char="*",
-                                             grab_anywhere=False)
+                                             grab_anywhere=False,
+                                             icon='input/LogoIcon.ico')
                     if password == None:
                         window.Element(f"-INF{checkTab}-").Update("DB no desencriptada")
                         continue
@@ -393,7 +395,7 @@ def InitialGui():
                 continue
                 
         elif event ==f"-LIST{checkTab}-":
-            questChoice = values[f"-LIST{checkTab}-"][0]
+            questChoice = values[f"-LIST{checkTab}-"]
             window.Element("-OK-").Update(disabled=False)
             window.Element("-OK-").set_tooltip("¡Ánimo y suerte!")
         

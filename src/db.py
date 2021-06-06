@@ -2,7 +2,6 @@ import sqlite3
 from sqlite3 import Error
 
 
-
 def SqlConnection(routeDB):
   
     try:
@@ -17,9 +16,7 @@ def SqlConnection(routeDB):
         return False
     
 
-     
 def GetThings(cur, idQuestion, option="Question"):
-
         cur.execute(f"SELECT ID,{option} FROM MainTest WHERE ID ={idQuestion}")
         thingExtract = cur.fetchall()[0][1]
         return thingExtract

@@ -7,11 +7,13 @@ from PIL import Image
 def PopupImage(imageChoice):
     layout = [
         [sg.Image(data=imageChoice,key="-IMAGE-")],
+        [sg.Column([[sg.Button("Pulsa aquí para salir del visualizador y desbloquear la ventana de respuestas",key="-Exit-")]], vertical_alignment='center', justification='center')]
     ]
+
     window = sg.Window("ExamMaker - Visualizador", layout,icon=r'input/LogoIcon.ico')
     while True:
         event, values = window.read()
-        if event == "Exit" or event == sg.WIN_CLOSED:
+        if event == "-Exit-" or event == sg.WIN_CLOSED:
             break
     window.close()
 
@@ -38,7 +40,7 @@ def PopupHelp():
 
     layoutMain = [[sg.Column(layoutPrep, element_justification='center')]]
     
-    window = sg.Window('Detalles', layoutMain,icon=r'input/LogoIcon.png')
+    window = sg.Window('Detalles', layoutMain,icon=r'input/LogoIcon.ico')
 
     while True:           
         event, values = window.read()
