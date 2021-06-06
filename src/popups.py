@@ -10,7 +10,7 @@ def PopupImage(imageChoice):
         [sg.Column([[sg.Button("Pulsa aquí para salir del visualizador y desbloquear la ventana de respuestas",key="-Exit-")]], vertical_alignment='center', justification='center')]
     ]
 
-    window = sg.Window("ExamMaker - Visualizador", layout,icon=r'input/LogoIcon.ico')
+    window = sg.Window("ExamMaker - Visualizador", layout,icon=r'input/LogoIcon.ico', resizable=True)
     while True:
         event, values = window.read()
         if event == "-Exit-" or event == sg.WIN_CLOSED:
@@ -26,7 +26,7 @@ def PopupHelp():
     
     layoutPrep = [
                 [sg.Text('Versión de ExamMaker:', text_color=commonParams[0], font=commonParams[1]),
-                 sg.Text('0.3', enable_events=True,key = "-VERSION-", tooltip="Click para ver novedades", text_color="#ffafad",font=commonParams[1])],
+                 sg.Text('0.3.1', enable_events=True,key = "-VERSION-", tooltip="Click para ver novedades", text_color="#ffafad",font=commonParams[1])],
                 
                 [sg.Text('Autor:', text_color=commonParams[0], font=commonParams[1]),
                  sg.Text('Alexvidalcor', enable_events=True,key = "-AUTHOR-", text_color="#ffafad",font=commonParams[1])],

@@ -13,9 +13,11 @@ from src.popups import PopupHelp, PopupThanks, PopupImage
 
 app_title = 'ExamMaker-V0.3'
 sg.SetOptions(font='any 11', auto_size_buttons=True, progress_meter_border_depth=0, border_width=1)
+sg.set_global_icon('input/LogoIcon.ico')
 
 menu_def = [['Archivo', ['Salir']],['Ayuda', ["Agradecimientos", 'Acerca de...']]]
 
+#Thanks MikeTheWatchGuy
 def place(elem):
     return sg.Column([[elem]], pad=(0,0))
 
@@ -31,7 +33,7 @@ def AnswerGui(cur, realAnswer, userAnswer, Sentence, justification):
         
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.ico')
+    window = sg.Window('ExamMaker - Answer', layout, icon='input/LogoIcon.ico')
     while True:
         event, values = window.read()
 
@@ -59,7 +61,7 @@ def ConclusionGui(con, windowTest, windowInitial, totalAnswers, correctAnswers):
         [sg.Button('OK')]
     ]
 
-    window = sg.Window('ExamMaker - Answer', layout, icon=r'input/LogoIcon.ico')
+    window = sg.Window('ExamMaker - Answer', layout, icon='input/LogoIcon.ico')
     while True:
         event, values = window.read()
 
@@ -85,28 +87,28 @@ def TestGui(con, cur, numberQuest, questChoice, windowInitial):
     layout = [
         [sg.Text(GetThings(cur, randomQuestions[n], option="Category"), font=('Helvetica', 16), justification='left', key='-CAT-'),
             sg.Text(font=('Helvetica', 16),size =(12,1), justification='right', key='-TIME-'),
-            sg.Text(f'{n+1} de {questChoice}', size =(11,1), key="-COUNTER-",justification="right", font=("Helvetica", 16))],
+            sg.Text(f'{n+1} de {questChoice}', size =(10,1), key="-COUNTER-",justification="right", font=("Helvetica", 16))],
         [sg.Text('')],
         [sg.Frame("Pregunta", layout=[[sg.Multiline
                (default_text= GetThings(cur, randomQuestions[n]),
-                size=(43,5), key="-QUESTION-", disabled=True, enter_submits=False)]])],
-        [sg.Text('', key="-SPACE1-", visible=False)],
-        [sg.Column([[sg.Button('VER IMAGEN ADJUNTA A LA PREGUNTA', key="-IMAGE-",enable_events=True, visible=False)]], vertical_alignment='center', justification='center')],
+                size=(42,5), key="-QUESTION-", disabled=True, enter_submits=False)]])],
+        [sg.pin(sg.Column([[sg.Text('')],[sg.Button('VER IMAGEN ADJUNTA A LA PREGUNTA', key="-IMAGE-",enable_events=True, visible=True)]], 
+                    key = "-COLIMAGE-",visible=False, vertical_alignment='center', justification='center', element_justification='center',expand_x=True, expand_y=True),expand_x=True, vertical_alignment='center',expand_y=True)],
         [sg.Text('')],
         [sg.Frame("Posibles Respuestas", layout=[[sg.Multiline
                (default_text= GetThings(cur, randomQuestions[n], option="Answer"),
-                size=(43,5), key="-ANSWER-", disabled=True, enter_submits=False)]])],
+                size=(42,5), key="-ANSWER-", disabled=True, enter_submits=False)]])],
         [sg.Text('')],
-        [sg.InputText('Respuesta elegida: ', size=(40,1), readonly=True, key='-IN-'), 
+        [sg.InputText('Respuesta elegida: ', size=(39,1), readonly=True, key='-IN-'), 
             sg.Button(image_filename="input/DeleteAnswer.png", key="-DELETE-", enable_events=True,image_size=(40,30), image_subsample=13)],
         [sg.Text('')],
-        [sg.Button('A',size=(11,1),visible=True), sg.Button('B',size=(11,1),visible=True), place(sg.Button('C',size=(11,1),visible=False))],
-        [place(sg.Button('D',size=(11,1),visible=False)), place(sg.Button('E',size=(11,1),visible=False)), place(sg.Button('F',size=(11,1),visible=False))],
+        [sg.Button('A',size=(12,1),visible=True), sg.Button('B',size=(12,1),visible=True), sg.pin(sg.Button('C',size=(12,1),visible=False))],
+        [sg.pin(sg.Button('D',size=(12,1),visible=False)), sg.pin(sg.Button('E',size=(12,1),visible=False)), sg.pin(sg.Button('F',size=(12,1),visible=False))],
         [sg.Text('')],
         [sg.Column([[sg.Button('Confirmar Respuesta', key="-ENTER-", enable_events=True)]], vertical_alignment='center', justification='center')]
     ]
 
-    window = sg.Window('ExamMaker', layout,icon=r'input/LogoIcon.ico')
+    window = sg.Window('ExamMaker', layout,icon='input/LogoIcon.ico')
 
     timeRunning, counter = True, 0
     answerNeeds = True
@@ -128,11 +130,9 @@ def TestGui(con, cur, numberQuest, questChoice, windowInitial):
         if answerImage==True:
             imageManager = GetThings(cur, randomQuestions[n], option="Image")
             if imageManager!=None:
-                window.Element("-IMAGE-").update(visible=True)
-                window.Element("-SPACE1-").update(visible=True)
+                window.Element("-COLIMAGE-").update(visible=True)
             elif imageManager==None:
-                window.Element("-SPACE1-").update(visible=False)
-                window.Element("-IMAGE-").update(visible=False)
+                window.Element("-COLIMAGE-").update(visible=False)
             answerImage=False
 
         if answerNeeds == True:
@@ -249,11 +249,11 @@ def TestGui(con, cur, numberQuest, questChoice, windowInitial):
                     break
 
             except AttributeError:
-                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.ico')
+                sg.Popup("No has introducido respuesta",icon='input/LogoIcon.ico')
                 continue
 
             except UnboundLocalError:
-                sg.Popup("No has introducido respuesta",icon=r'input/LogoIcon.ico')
+                sg.Popup("No has introducido respuesta",icon='input/LogoIcon.ico')
                 continue
 
     if os.path.exists("TestDB.db"):
@@ -279,13 +279,13 @@ def InitialGui():
             [sg.Text("", font=ParamsEmpty[1])],
             [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
             sg.Input(key="-FILE1-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
-                sg.FileBrowse(button_text = "Seleccionar",key="-SUB1-", change_submits=True, enable_events=True, tooltip="Selecciona la base de datos")],
+                sg.FileBrowse(button_text = "Seleccionar", file_types = [('Archivos zip', '*.zip')], key="-SUB1-", change_submits=True, enable_events=True, tooltip="Selecciona la base de datos")],
             [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF1-")],
             ])],
 
             [sg.Text("", font=ParamsEmpty[1])],
 
-            [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
+            [sg.Text("Preguntas para examen:", size=ParamsH3[0], font=ParamsH3[1]), 
 
             sg.Combo(size=(10,5), auto_size_text=False, readonly=True, enable_events=True, tooltip="Desactivado. Selecciona DB antes", default_value=[0],values=[0], disabled=True,  key="-LIST1-")],
 
@@ -300,14 +300,14 @@ def InitialGui():
             [sg.Frame('Insertar Base de datos online', layout=[
             [sg.Text("", font=ParamsEmpty[1])],
             [sg.Text("Selecciona la DB: ", size=ParamsH3[0], font=ParamsH3[1]), 
-            sg.Combo(values=[],tooltip="Pulsa'Refrescar'",key="-FILE2-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
+            sg.Combo(values=[], readonly=True, tooltip="Pulsa'Refrescar'",key="-FILE2-",size=ParamsH3[0], font=ParamsH3[1], enable_events=True), 
                 sg.Button("Refrescar", key="-SUB2-", change_submits=True, enable_events=True)],
             [sg.Text('No se ha introducido DB', size=ParamsH2[0], font=ParamsH3[1],text_color="#ffafad", key="-INF2-")],
             ])],
 
             [sg.Text("", font=ParamsEmpty[1])],
 
-            [sg.Text("Número de preguntas:", size=ParamsH3[0], font=ParamsH3[1]), 
+            [sg.Text("Preguntas para examen:", size=ParamsH3[0], font=ParamsH3[1]), 
 
             sg.Combo(size=(10,5),auto_size_text=False, readonly=True, enable_events=True, default_value=[0],values=[0], disabled=True,  key="-LIST2-")],
 
@@ -321,7 +321,7 @@ def InitialGui():
     ]
     
     checkTab= 2
-    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon=r'input/LogoIcon.ico')
+    window = sg.Window('ExamMaker - Pantalla inicial', layout, icon='input/LogoIcon.ico')
     while True:
         event, values = window.read()
         
@@ -380,8 +380,8 @@ def InitialGui():
                 numberQuest = cur.fetchall()[0][0]
                     
                 window.Element(f'-INF{checkTab}-').Update(f"Número de preguntas introducidas: {numberQuest}", text_color="#ffff80")
-                window.Element(f'-LIST{checkTab}-').Update(values=list(range(1,numberQuest+1)), disabled=False)
-                window.Element(f"-LIST{checkTab}-").set_tooltip("Haz click encima para seleccionar")
+                window.Element(f'-LIST{checkTab}-').Update(values=list(range(1,numberQuest+1)), disabled=False, readonly = True)
+                window.Element(f"-LIST{checkTab}-").set_tooltip("Selecciona número de preguntas que tendrá el examen")
                 
                 
         elif event == f"-SUB2-":
