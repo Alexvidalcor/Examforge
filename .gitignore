@@ -3,4 +3,5 @@ src/__pycache__/
 test.py
 test.ipynb
 settings.json
+__pycache__
 
