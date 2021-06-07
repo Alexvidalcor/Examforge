@@ -29,7 +29,7 @@ _Descargar y ejecutar_
 Ver  apartado [**Releases**](https://github.com/Alexvidalcor/ExamMaker/releases) para descargar el último ejecutable.
 
 
-### Distribución de Linux basado en Debian 
+### Distribución de Linux basada en Debian 
 
 _Pasos a seguir (comandos de terminal):_
 
