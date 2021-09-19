@@ -37,10 +37,8 @@ _Pasos a seguir (comandos de terminal):_
 git clone https://github.com/Alexvidalcor/ExamMaker
 
 cd ExamMaker/
-
-pip3 install -r requirements.txt
-
-python3 main.py
+python3 src/install.py
+./execute.sh
 ```
 
 
