@@ -35,7 +35,6 @@ _Pasos a seguir (comandos de terminal):_
 
 ```
 git clone https://github.com/Alexvidalcor/ExamMaker
-
 cd ExamMaker/
 python3 src/install.py
 ./execute.sh
