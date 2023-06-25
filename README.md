@@ -12,7 +12,7 @@ Enter window | Questions window
 ## Project status ⚙️
 
 Services | Status
-:-------------------------:|:--------------------- ----:
+:-------------------------:|:-------------------------:
 Basic questions management | okay
 Support multiple responses | okay
 Image support | okay
