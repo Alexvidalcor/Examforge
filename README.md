@@ -1,11 +1,10 @@
-# Makerexam
-
+# Examforge
 _Program that allows generating an exam from a database provided._
 
 
 Enter window | Questions window
 :-------------------------:|:-------------------------:
-![Intro_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Intro.PNG?raw=true) | ![Question_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Question.png?raw=true)
+![Intro_Window](https://github.com/Alexvidalcor/Examforge/blob/master/input/ExamMaker-Intro.PNG?raw=true) | ![Question_Window](https://github.com/Alexvidalcor/Examforge/blob/master/input/ExamMaker-Question.png?raw=true)
 
 
 
@@ -26,7 +25,7 @@ DB builder | Developing
 
 _Download and run_
 
-See section [**Releases**](https://github.com/Alexvidalcor/ExamMaker/releases) to download the latest executable.
+See section [**Releases**](https://github.com/Alexvidalcor/Examforge/releases) to download the latest executable.
 
 
 ### Debian-based Linux distribution
@@ -34,8 +33,8 @@ See section [**Releases**](https://github.com/Alexvidalcor/ExamMaker/releases) t
 _Steps to follow (terminal commands):_
 
 ```
-git clone https://github.com/Alexvidalcor/Makerexam
-cd Makerexam/
+git clone https://github.com/Alexvidalcor/Examforge
+cd Examforge/
 python3 src/install.py
 ./execute.sh
 ```
