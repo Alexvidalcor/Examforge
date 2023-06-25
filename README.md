@@ -1,56 +1,56 @@
-# ExamMaker
+# Makerexam
 
-_Programa que permite generar un examen a partir de una BBDD proporcionada._
+_Program that allows generating an exam from a database provided._
 
 
-Ventana Intro     |   Ventana Preguntas  
+Enter window | Questions window
 :-------------------------:|:-------------------------:
-![Intro_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Intro.PNG?raw=true) | ![Question_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Question.png?raw=true) 
+![Intro_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Intro.PNG?raw=true) | ![Question_Window](https://github.com/Alexvidalcor/ExamMaker/blob/master/input/ExamMaker-Question.png?raw=true)
 
 
 
-## Estado del proyecto ⚙️
+## Project status ⚙️
 
-Servicios          |  Estado
-:-------------------------:|:-------------------------:
-Gestión de preguntas básicas  |  OK
-Soporte respuestas múltiples  |  OK
-Soporte de imágenes | OK
-Analítica de datos | En desarrollo
-Constructor de DB | En desarrollo
-
-
-## Ejecución del programa 🚀
-
-### Windows 
-
-_Descargar y ejecutar_
-
-Ver  apartado [**Releases**](https://github.com/Alexvidalcor/ExamMaker/releases) para descargar el último ejecutable.
+Services | Status
+:-------------------------:|:--------------------- ----:
+Basic questions management | okay
+Support multiple responses | okay
+Image support | okay
+Data analytics | Developing
+DB builder | Developing
 
 
-### Distribución de Linux basada en Debian 
+## Program execution 🚀
 
-_Pasos a seguir (comandos de terminal):_
+### Windows
+
+_Download and run_
+
+See section [**Releases**](https://github.com/Alexvidalcor/ExamMaker/releases) to download the latest executable.
+
+
+### Debian-based Linux distribution
+
+_Steps to follow (terminal commands):_
 
 ```
-git clone https://github.com/Alexvidalcor/ExamMaker
-cd ExamMaker/
+git clone https://github.com/Alexvidalcor/Makerexam
+cd Makerexam/
 python3 src/install.py
 ./execute.sh
 ```
 
 
-## Construido con 🛠️
+## Built with 🛠️
 
 * [SQLite3](https://www.sqlite.org/index.html) - SQL database engine
 * [PySimpleGui](https://pysimplegui.readthedocs.io/en/latest/) - Python GUI For Humans.
 
 
-## Licencia 📄
+## License 📄
 
-Este proyecto está bajo la Licencia (GNU GPL-V3) - mira el archivo [LICENSE.md](LICENSE.md) para detalles.
+This project is licensed under the License (GNU GPL-V3) - see the [LICENSE.md](LICENSE.md) file for details.
 
 
 ---
-⌨️ con ❤️ por [Alexvidalcor](https://github.com/Alexvidalcor) 😊
+⌨️ with ❤️ by [Alexvidalcor](https://github.com/Alexvidalcor) 😊
